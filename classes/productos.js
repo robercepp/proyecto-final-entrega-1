@@ -31,7 +31,7 @@ module.exports = class Contenedor {
 
   async save(object) {
     await main.fileChecker(this.archivo);
-    if ((await main.isAdmin(main.userLogged)) === true) {
+    if ((await main.isAdmin(main.userLogged)) == true || await main.isAdmin(main.userLogged) == "true") {
       try {
         const file = await fs.promises.readFile(this.archivo, "utf-8");
         const data = JSON.parse(file);
@@ -80,7 +80,7 @@ module.exports = class Contenedor {
   }
   async update(object, id) {
     await main.fileChecker(this.archivo);
-    if (await main.isAdmin(main.userLogged) == true) {
+    if (await main.isAdmin(main.userLogged) == true || await main.isAdmin(main.userLogged) == "true" ) {
       try {
         const file = await fs.promises.readFile(this.archivo, "utf-8");
         const data = JSON.parse(file);
@@ -117,7 +117,7 @@ module.exports = class Contenedor {
   }
   async deleteById(number) {
     await main.fileChecker(this.archivo);
-    if ((await main.isAdmin(main.userLogged)) === true) {
+    if ((await main.isAdmin(main.userLogged)) == true || await main.isAdmin(main.userLogged) == "true" ) {
       try {
         const file = await fs.promises.readFile(this.archivo, "utf-8");
         const data = JSON.parse(file);
