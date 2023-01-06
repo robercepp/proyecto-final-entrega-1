@@ -1,7 +1,6 @@
 //librerías necesarias
 const express = require("express");
 const { Router } = express;
-const fs = require("fs");
 
 //implementación de servidor
 const app = express();
@@ -14,13 +13,10 @@ const server = app.listen(PORT, () => {
 });
 server.on("error", (error) => console.log(`Error en servidor ${error}`));
 
-//class
-const Contenedor = require("./classes/productos.js");
-const catalogo = new Contenedor("./db/productos.txt");
-const Usuarios = require("./classes/users.js");
-const user = new Usuarios("./db/users.txt");
-const Carrito = require("./classes/carrito.js");
-const shopCart = new Carrito("./db/carrito.txt");
+//Separación de rutas requeridas
+const prod = require("./routes/productos.js")
+const usr = require("./routes/usuarios.js")
+const cart = require("./routes/carrito.js")
 
 //app.use
 app.use(express.json());
@@ -31,98 +27,43 @@ app.use("/api/usuarios", usuarios);
 app.use(express.static("public"));
 
 //productos
-productos.get("/", async (req, res) => {
-  const resultado = await catalogo.getAll();
-  return res.send(resultado);
-});
+productos.get("/", prod.listAll);
 
-productos.get("/:id", async (req, res) => {
-  let { id } = req.params;
-  const resultado = await catalogo.getById(id);
-  return res.send(resultado);
-});
+productos.get("/:id", prod.listById);
 
-productos.post("/", async (req, res) => {
-  const resultado = await catalogo.save(req.body);
-  return res.send(resultado);
-});
+productos.post("/", prod.createProduct);
 
-productos.put("/:id", async (req, res) => {
-  const resultado = await catalogo.update(req.body, req.params.id);
-  return res.send(resultado);
-});
+productos.put("/:id", prod.modifyProduct);
 
-productos.delete("/:id", async (req, res) => {
-  const resultado = await catalogo.deleteById(req.params.id);
-  return res.send(resultado);
-});
+productos.delete("/:id", prod.deleteProduct);
 
 //usuarios
-usuarios.get("/", async (req, res) => {
-  const resultado = await user.getAll();
-  return res.send(resultado);
-});
+usuarios.get("/", usr.listAll);
 
-usuarios.get("/:id", async (req, res) => {
-  const resultado = await user.getById(req.params.id);
-  return res.send(resultado);
-});
+usuarios.get("/:id", usr.listById);
 
-usuarios.post("/", async (req, res) => {
-  const resultado = await user.save(req.body);
-  return res.send(resultado);
-});
+usuarios.post("/", usr.createUser);
 
-usuarios.put("/:id", async (req, res) => {
-  const resultado = await user.update(req.body, req.params.id);
-  return res.send(resultado);
-});
+usuarios.put("/:id", usr.modifyUser);
 
-usuarios.delete("/:id", async (req, res) => {
-  const resultado = await user.deleteById(req.params.id);
-  return res.send(resultado);
-});
+usuarios.delete("/:id", usr.deleteUser);
 
-usuarios.post('/login', (req, res) =>{
-  const resultado = user.userLogged(req.body)
-  return res.send(resultado)
-})
+usuarios.post('/login', usr.login)
 
 //carrito
-carrito.get("/", async (req, res) => {
-  const resultado = await shopCart.getAll();
-  return res.send(resultado);
-});
+carrito.get("/", cart.listAll);
 
-carrito.get("/:id/productos", async (req, res) => {
-  const resultado = await shopCart.getById(req.params.id);
-  return res.send(resultado);
-});
+carrito.get("/:id/productos", cart.listById);
 
-carrito.post("/", async (req, res) => {
-  const resultado = await shopCart.save();
-  return res.send(resultado);
-});
+carrito.post("/", cart.createCart);
 
-carrito.post("/:id/productos", async (req, res) => {
-  const resultado = await shopCart.addProduct(req.params.id, req.body.cantidad);
-  return res.send(resultado);
-});
+carrito.post("/:id/productos", cart.addProduct);
 
-carrito.delete("/:id", async (req, res) => {
-  const resultado = await shopCart.delete(req.params.id);
-  return res.send(resultado);
-});
+carrito.delete("/:id", cart.deleteCart);
 
-carrito.delete("/:id/productos/:id_prod", async (req, res) => {
-  const resultado = await shopCart.deleteProductById(
-    req.params.id,
-    req.params.id_prod
-  );
-  return res.send(resultado);
-});
+carrito.delete("/:id/productos/:id_prod", cart.removeProductById);
 
 //default
 app.get("*", (req, res) => {
-  res.status(404).send("Error 404, ruta no encontrada");
+  res.status(404).send({error: "Error 404, ruta no encontrada"});
 });
